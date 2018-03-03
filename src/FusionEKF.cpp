@@ -25,8 +25,8 @@ FusionEKF::FusionEKF() {
   F_init_ = MatrixXd(4,4); // Initial State Transition Matrix
   Q_init_ = MatrixXd(4,4); // Initial Process Covariance Matrix
 
-  noise_ax = 9;
-  noise_ay = 9;
+  noise_ax = 9.0;
+  noise_ay = 9.0;
 
   //measurement covariance matrix - laser
   R_laser_ << 0.0225, 0,
@@ -54,10 +54,10 @@ FusionEKF::FusionEKF() {
        0, 0, 0, 10000;   
 
   // process covariance matrix
-  Q_init_ << 1/4*noise_ax, 0, 1/2*noise_ax, 0,
-       0, 1/4*noise_ay, 0, 1/2*noise_ay,
-       1/2*noise_ax, 0, 1/2*noise_ax, 0,       
-       0, 1/2*noise_ay, 0, noise_ay;
+  Q_init_ << 1/4.0*noise_ax, 0, 1/2.0*noise_ax, 0,
+       0, 1/4.0*noise_ay, 0, 1/2.0*noise_ay,
+       1/2.0*noise_ax, 0, 1/2.0*noise_ax, 0,       
+       0, 1/2.0*noise_ay, 0, noise_ay;
 
   /**
   TODO:

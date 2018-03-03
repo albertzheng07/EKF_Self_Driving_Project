@@ -42,13 +42,20 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
 }
 
 
-void KalmanFilter::UpdateStateTransitionMatrix(const long long dt)
+void KalmanFilter::UpdateStateTransitionMatrix(double dt)
 {
   F_(0,2) = dt; // Update time dependent position components in state transition matrix
   F_(1,3) = dt;
 }
 
-void KalmanFilter::UpdateProcessCovarianceMatrix(const long long dt, MatrixXd &Qv_in, MatrixXd &G_in)
-{
-  Q_ = G_in*Qv_in*G_in.transpose(); // update Q matrix with delta time measurement values G*Qv*GT
+void KalmanFilter::UpdateProcessCovarianceMatrix(double dt, double noise_ax, double noise_ay)
+{ 
+  double dt_2 = dt * dt;
+  double dt_3 = dt_2 * dt;
+  double dt_4 = dt_3 * dt;
+
+  Q_ << dt_4/4*noise_ax, 0, dt_3/2*noise_ax, 0,
+       0, dt_4/4*noise_ay, 0, dt_3/2*noise_ay,
+       dt_3/2*noise_ax, 0, dt_2/2*noise_ax, 0,       
+       0, dt_3/2*noise_ay, 0, dt_2*noise_ay;       
 }

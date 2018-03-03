@@ -64,6 +64,20 @@ public:
    */
   void UpdateEKF(const Eigen::VectorXd &z);
 
+  /**
+   * Updates the state transition matrix with the time measurement update
+   * @param dt time measurement between k+1 and k
+   */
+  void UpdateStateTransitionMatrix(double dt);
+
+  /**
+   * Updates the state transition matrix with the time measurement update
+   * @param dt time measurement between k+1 and k
+   * @param noise_ax noise variance of acceleration in x direction
+   * @param noise_ay noise variance of acceleration in y direction   
+   */
+  void UpdateProcessCovarianceMatrix(double dt, double noise_ax, double noise_ay);
+
 };
 
 #endif /* KALMAN_FILTER_H_ */

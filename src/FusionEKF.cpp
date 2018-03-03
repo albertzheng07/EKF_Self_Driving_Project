@@ -22,6 +22,8 @@ FusionEKF::FusionEKF() {
   H_laser_ = MatrixXd(2, 4);
   Hj_ = MatrixXd(3, 4);   // jacobian measurement model - radar
   Q_v_ = MatrixXd(2,2); // covariance matrix of individual noise processes ax, ay
+  G_ = MatrixXd(4,2);   // kinematic model of process noise covariance to map back to state vector
+
   F_init_ = MatrixXd(4,4); // Initial State Transition Matrix
 
   //measurement covariance matrix - laser
@@ -37,7 +39,7 @@ FusionEKF::FusionEKF() {
   H_laser_ = << 1, 0, 0, 0, // px
                 0, 1, 0, 0; // py
 
-  // process covariance matrix
+  // process noise covariance matrix
   Q_v_ << 9, 0;
               0, 9;
 
@@ -142,4 +144,10 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   cout << "P_ = " << ekf_.P_ << endl;
 }
 
-
+void EKF::updateProcessKinematicModel(const long long dt)
+{
+    G_ << dt*dt/2.0, 0, 
+          0, dt*dt/2.0, 
+          dt, 0, 
+          0 , dt;         
+}

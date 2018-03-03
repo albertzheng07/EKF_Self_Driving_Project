@@ -1,4 +1,4 @@
-# Install script for directory: /Users/azheng/udacity/self_driving_car/CarND-Extended-Kalman-Filter-Project
+# Install script for directory: /Users/azheng/udacity/self_driving_car/EKF_Self_Driving_Project
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -35,5 +35,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Users/azheng/udacity/self_driving_car/CarND-Extended-Kalman-Filter-Project/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/Users/azheng/udacity/self_driving_car/EKF_Self_Driving_Project/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

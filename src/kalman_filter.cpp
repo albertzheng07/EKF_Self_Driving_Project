@@ -40,3 +40,16 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
     * update the state by using Extended Kalman Filter equations
   */
 }
+
+
+void KalmanFilter::UpdateStateTransitionMatrix(const long long dt)
+{
+  F_(0,2) = dt; // Update time dependent equations in state transition matrix
+  F_(1,3) = dt;
+}
+
+void KalmanFilter::UpdateProcessCovarianceMatrix(const long long dt, MatrixXd &Qv_in, MatrixXd &Gv_in)
+{
+  G_(0,2) = dt; // Update time dependent equations in state transition matrix
+  G_(1,3) = dt;
+}

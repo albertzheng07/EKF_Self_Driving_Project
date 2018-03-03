@@ -20,7 +20,9 @@ FusionEKF::FusionEKF() {
   R_laser_ = MatrixXd(2, 2);
   R_radar_ = MatrixXd(3, 3);
   H_laser_ = MatrixXd(2, 4);
-  Hj_ = MatrixXd(3, 4);
+  Hj_ = MatrixXd(3, 4);   // jacobian measurement model - radar
+  Q_v_ = MatrixXd(2,2); // covariance matrix of individual noise processes ax, ay
+  F_init_ = MatrixXd(4,4); // Initial State Transition Matrix
 
   //measurement covariance matrix - laser
   R_laser_ << 0.0225, 0,
@@ -31,12 +33,24 @@ FusionEKF::FusionEKF() {
         0, 0.0009, 0,
         0, 0, 0.09;
 
+  // measurement model - laser 
+  H_laser_ = << 1, 0, 0, 0, // px
+                0, 1, 0, 0; // py
+
+  // process covariance matrix
+  Q_v_ << 9, 0;
+              0, 9;
+
+  // state transition matrix
+  F_init_ << 1, 0, previous_timestamp_, 0,
+       0, 1, previous_timestamp_, 0,
+       0, 0, 1, 0,       
+       0, 0, 0, 1;       
   /**
   TODO:
     * Finish initializing the FusionEKF.
     * Set the process and measurement noises
   */
-
 
 }
 
@@ -60,8 +74,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     */
     // first measurement
     cout << "EKF: " << endl;
-    ekf_.x_ = VectorXd(4);
-    ekf_.x_ << 1, 1, 1, 1;
+    x_in = VectorXd(4);
+    // first covariance matrix
 
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
       /**
@@ -73,6 +87,20 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       Initialize state.
       */
     }
+
+    // initializes covariance matrix
+    P_in = MatrixXd(4,4);
+    // initializes state transition matrix
+    F_in = F_init_;
+    // initializes measurement model matrix
+    H_in = MatrixXd(5,4); // 2 x 4 for laser, 3 x 4 for radar
+    // initializes process noise matrix
+    R_in = MatrixXd(5,4); //
+    // initiazlies measurement noise matrix
+    Q_in = Q_accel_;
+
+    // Init the EKF 
+    ekf.Init(&x_in,&P_in, &F_in, &H_in, &R_in, &Q_in);
 
     // done initializing, no need to predict or update
     is_initialized_ = true;
@@ -113,3 +141,5 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   cout << "x_ = " << ekf_.x_ << endl;
   cout << "P_ = " << ekf_.P_ << endl;
 }
+
+

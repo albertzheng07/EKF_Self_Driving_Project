@@ -107,12 +107,21 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     F_in = F_init_;
     // initiazlies measurement noise matrix
     updateProcessKinematicModel(previous_timestamp_);    
-    Q_in = G*Q_v_*G.transpose();
+    Q_in = G*Q_v_*G.transpose(); // init Q process matrix
     // Init the EKF 
     ekf.Init(&x_in,&P_in, &F_in, &H_in, &R_in, &Q_in);
 
     // done initializing, no need to predict or update
     is_initialized_ = true;
+    cout << "Check Initialization of EKF \n";
+    cout << "Sensor Type = " << (int)measurement_pack.sensor_type_ << "\n";
+    cout << "EKF x init = " << ekf.x << "\n";
+    cout << "EKF P init = " << ekf.P << "\n";
+    cout << "EKF F init = " << ekf.F << "\n";
+    cout << "EKF H init = " << ekf.H << "\n";
+    cout << "EKF R init = " << ekf.R << "\n";
+    cout << "EKF Q init = " << ekf.Q << "\n";
+
     return;
   }
 

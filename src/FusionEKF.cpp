@@ -78,29 +78,36 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     cout << "EKF: " << endl;
     x_in = VectorXd(4);
     // first covariance matrix
+    Matrix2d H_in;
+    Matrix2d R_in;
 
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
       /**
       Convert radar from polar to cartesian coordinates and initialize state.
       */
+      double rho     = _raw_measurements_[0]; // radial distance to object
+      double phi     = _raw_measurements_[1]; // bearing angle between object and vehicle current heading
+      double rho_dot = _raw_measurements_[2]; // range rate
+      x_in << rho*cos(phi), rho*sin(phi), rho_dot*cos(phi), rho_dot*sin(phi); // convert polar to cartesian x = rho*cos(phi), y = rho*sin(phi)
+      H_in = Hj_;
+      R_in = R_radar_;
     }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
       /**
-      Initialize state.
+      Initialize state, process noise matrices and measurement matrices
       */
+      x_in <<  _raw_measurements_[0], _raw_measurements_[1], 0, 0; // x,y distances to object (directly in cartesian coord.)
+      H_in = H_laser_;            
+      R_in = R_laser_;
     }
 
     // initializes covariance matrix
     P_in = MatrixXd(4,4);
     // initializes state transition matrix
     F_in = F_init_;
-    // initializes measurement model matrix
-    H_in = MatrixXd(5,4); // 2 x 4 for laser, 3 x 4 for radar
-    // initializes process noise matrix
-    R_in = MatrixXd(5,4); //
     // initiazlies measurement noise matrix
-    Q_in = Q_accel_;
-
+    updateProcessKinematicModel(previous_timestamp_);    
+    Q_in = G*Q_v_*G.transpose();
     // Init the EKF 
     ekf.Init(&x_in,&P_in, &F_in, &H_in, &R_in, &Q_in);
 

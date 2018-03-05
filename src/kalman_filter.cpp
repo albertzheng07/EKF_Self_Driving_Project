@@ -1,5 +1,6 @@
 #include "kalman_filter.h"
 
+
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
@@ -56,7 +57,7 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   MatrixXd Hj = calculateJacobian(x_); // get jacobian from state matrix
   VectorXd z_pred = computePredictedMeasurement(x_); // predicted measurement z
   VectorXd y = z - z_pred; // error of measured - predicted measurement
-  unWrapAngleVector(y); 
+  unWrapAngleVector(y);
   MatrixXd S = Hj*P_*Hj.transpose() + R_; // Probability with respect to the measurement's effect on the states
   MatrixXd K = P_*Hj.transpose()*S.inverse(); // Kalman gain which fuses the two probabilities of the measurement and prediction
 
@@ -138,7 +139,7 @@ static double unWrapAngle(double angle)
 
 static void unWrapAngleVector(VectorXd& z)
 {
-  for (uint32_t i; i<z.size(); i++)
+  for (uint32_t i = 0; i<z.size(); i++)
   {
     z(i) = unWrapAngle(z(i));
   }   

@@ -138,7 +138,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     cout << "EKF H init = " << ekf_.H_ << "\n";
     cout << "EKF R init = " << ekf_.R_ << "\n";
     cout << "EKF Q init = " << ekf_.Q_ << "\n";
-    
+
     return;
   }
 
@@ -155,7 +155,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   //compute the time elapsed between the current and previous measurements
 
   double dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.0; //dt - expressed in seconds
-  cout << "dt = " << dt << "\n";
   previous_timestamp_ = measurement_pack.timestamp_;
   ekf_.UpdateStateTransitionMatrix(dt); // Update state transition matrix F
   ekf_.UpdateProcessCovarianceMatrix(dt, noise_ax, noise_ay); // Update process covariance matrix Q
@@ -173,8 +172,10 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
     // Radar updates, use EKF
+    ekf_.R_ = R_radar_;
     ekf_.UpdateEKF(measurement_pack.raw_measurements_);    
   } else {
+    ekf_.R_ = R_laser_;    
     // Laser updates, use KF
     ekf_.Update(measurement_pack.raw_measurements_);        
   }

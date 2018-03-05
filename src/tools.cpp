@@ -31,7 +31,7 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
   for(uint32_t i=0; i < estimations.size(); ++i){  
   	VectorXd r = estimations[i] - ground_truth[i];  
   	//coefficient-wise multiplication
-  	RMSE += r.cwiseProduct(r); // Sum of R^2
+  	RMSE += r.cwiseProduct(r); // Sum of R^2	
   }
 
   RMSE = RMSE/estimations.size(); // Get mean by averaging over n

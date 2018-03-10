@@ -24,22 +24,12 @@ public:
   */
   VectorXd CalculateRMSE(const vector<VectorXd> &estimations, const vector<VectorXd> &ground_truth);
 
-  // /**
-  // * A helper method to calculate Jacobians.
-  // */
-  // MatrixXd CalculateJacobian(const VectorXd& x_state);
-
-  // *
-  // * A helper method to calculate the predicted measurement with the nonlinear mapping of x->y.
-  
-  // VectorXd ComputePredictedMeasurement(const VectorXd& x_state);
-
-  // void unWrapVector(VectorXd& z);
-
-  // /*
-  // * helper method to unwrap angle to -pi,pi
-  // */
-  // double unWrapAngle(double angle);
+  /**
+   * A helper method to calculate Jacobians.
+   * Calculates the jacobian radar matrix with x_state
+   * @param x_state state vector
+  */
+  MatrixXd calculateJacobian(const Eigen::VectorXd& x_state);
 
 };
 

@@ -31,7 +31,8 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
   for(uint32_t i=0; i < estimations.size(); ++i){  
   	VectorXd r = estimations[i] - ground_truth[i];  
   	//coefficient-wise multiplication
-  	RMSE += r.cwiseProduct(r); // Sum of R^2	
+    r = r.array()*r.array(); // Sum of R^2  
+    RMSE += r;
   }
 
   RMSE = RMSE/estimations.size(); // Get mean by averaging over n
@@ -40,4 +41,27 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
   RMSE = RMSE.array().sqrt();
 
   return RMSE;
+}
+
+MatrixXd Tools::calculateJacobian(const VectorXd& x_state) {
+  /**
+    * Calculate a Jacobian here for the radar measurement function
+  */
+  double px = x_state(0);
+  double py = x_state(1);
+  double vx = x_state(2);
+  double vy = x_state(3);
+
+  double c1 = px*px+py*py;
+  double c2 = sqrt(c1);
+  double c3 = (c1*c2);
+
+  MatrixXd H_j;
+  H_j = MatrixXd(3,x_state.size());
+
+  H_j << (px/c2), (py/c2), 0, 0,
+      -(py/c1), (px/c1), 0, 0,
+      py*(vx*py - vy*px)/c3, px*(px*vy - py*vx)/c3, px/c2, py/c2; // Jacobian matrix
+
+  return H_j;
 }

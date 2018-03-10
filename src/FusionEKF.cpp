@@ -2,6 +2,7 @@
 #include "tools.h"
 #include "Eigen/Dense"
 #include <iostream>
+#include "kalman_filter.h"
 
 using namespace std;
 using Eigen::MatrixXd;
@@ -20,7 +21,7 @@ FusionEKF::FusionEKF() {
   R_laser_ = MatrixXd(2, 2);
   R_radar_ = MatrixXd(3, 3);
   H_laser_ = MatrixXd(2, 4);
-  Hj_ = MatrixXd(3, 4);   // jacobian measurement model - radar
+  // Hj_ = MatrixXd(3, 4);   // jacobian measurement model - radar
   P_init_ = MatrixXd(4,4); // Initial State Covariance Matrix
   F_init_ = MatrixXd(4,4); // Initial State Transition Matrix
   Q_init_ = MatrixXd(4,4); // Initial Process Covariance Matrix
@@ -43,7 +44,7 @@ FusionEKF::FusionEKF() {
 
   // state transition matrix
   F_init_ << 1, 0, 1, 0,
-       0, 1, 1, 0,
+       0, 1, 0, 1,
        0, 0, 1, 0,       
        0, 0, 0, 1;
 
@@ -64,7 +65,7 @@ FusionEKF::FusionEKF() {
     * Finish initializing the FusionEKF.
     * Set the process and measurement noises
   */
-
+  Tools tools;
 }
 
 /**
@@ -103,9 +104,9 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       */
       double rho     = measurement_pack.raw_measurements_[0]; // radial distance to object
       double phi     = measurement_pack.raw_measurements_[1]; // bearing angle between object and vehicle current heading
-      double rho_dot = measurement_pack.raw_measurements_[2]; // range rate
-      x_in << rho*cos(phi), rho*sin(phi), rho_dot*cos(phi), rho_dot*sin(phi); // convert polar to cartesian x = rho*cos(phi), y = rho*sin(phi)
-      H_in = Hj_;
+      double rho_dot = measurement_pack.raw_measurements_[2]; // radial velocity to object
+      x_in << rho*cos(phi), rho*sin(phi), rho_dot*cos(phi), rho_dot*sin(phi); // convert polar to cartesian x = rho*cos(phi), y = rho*sin(phi), assume vx, vy without phidot measurement
+      H_in = tools.calculateJacobian(x_in);
       R_in = R_radar_;
     }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
@@ -130,8 +131,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
     // done initializing, no need to predict or update
     is_initialized_ = true;
-    cout << "Check Initialization of EKF \n";
-    cout << "Sensor Type = " << (int)measurement_pack.sensor_type_ << "\n";
+    // cout << "Check Initialization of EKF \n";
+    // cout << "Sensor Type = " << (int)measurement_pack.sensor_type_ << "\n";
     cout << "EKF x init = " << ekf_.x_ << "\n";
     cout << "EKF P init = " << ekf_.P_ << "\n";
     cout << "EKF F init = " << ekf_.F_ << "\n";
@@ -172,12 +173,18 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
     // Radar updates, use EKF
+    ekf_.H_ = tools.calculateJacobian(ekf_.x_); // get jacobian from state matrix
+    cout << "H = " << ekf_.H_ << endl;    
     ekf_.R_ = R_radar_;
     ekf_.UpdateEKF(measurement_pack.raw_measurements_);    
+    cout << "Radar = " << measurement_pack.raw_measurements_ << endl;
+
   } else {
+    ekf_.H_ = H_laser_;
     ekf_.R_ = R_laser_;    
     // Laser updates, use KF
-    ekf_.Update(measurement_pack.raw_measurements_);        
+    ekf_.Update(measurement_pack.raw_measurements_);     
+    cout << "Laser = " << measurement_pack.raw_measurements_ << endl;       
   }
 
   // print the output
